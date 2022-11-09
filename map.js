@@ -9,8 +9,9 @@ var TectonicPlatesBoundaryURL = "https://services.arcgis.com/BG6nSlhZSAWtExvp/ar
 // Set basemap and zoom level
 var outdoors_background = L.tileLayer(
   "https://api.mapbox.com/styles/v1/mapbox/outdoors-v9/tiles/256/{z}/{x}/{y}?" + API_Key, 
-  { attribution: '&copy; Christopher Buirski & Nicole Da Silva Trindade' },
-  { minZoom: 3 } 
+  { minZoom: 3,
+    attribution: '&copy; Christopher Buirski & Nicole Da Silva Trindade'
+  }
 );
 
 // Set map extent
