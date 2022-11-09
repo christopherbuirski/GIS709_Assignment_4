@@ -6,13 +6,14 @@ var EarthQuakeURL = "https://services8.arcgis.com/ZhTpwEGNVUBxG9VW/arcgis/rest/s
 var TectonicPlatesURL = "https://services.arcgis.com/jIL9msH9OI208GCb/arcgis/rest/services/Tectonic_Plates_and_Boundaries/FeatureServer/1"
 var TectonicPlatesBoundaryURL = "https://services.arcgis.com/BG6nSlhZSAWtExvp/arcgis/rest/services/TectonicPlateBoundaries/FeatureServer/0"
 
-// Basemap tile layer:
-var outdoors_background = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/outdoors-v9/tiles/256/{z}/{x}/{y}?" + API_Key,
-{
-  minZoom: 3
-} 
+// Set basemap and zoom level
+var outdoors_background = L.tileLayer(
+  "https://api.mapbox.com/styles/v1/mapbox/outdoors-v9/tiles/256/{z}/{x}/{y}?" + API_Key, 
+  { attribution: '&copy; Christopher Buirski & Nicole Da Silva Trindade' },
+  { minZoom: 3 } 
 );
 
+// Set map extent
 var map = L.map('map').setView([22.405087, -0.351560], 3);
 map.setMaxBounds(map.getBounds());
 
@@ -37,14 +38,29 @@ var overlayMaps = {
 };
 
 // control which layers are visible.
-L.control.layers(baseMaps, overlayMaps).addTo(map);
+L.control.layers(overlayMaps).addTo(map);
 
 tectonicplateboundaries.addTo(map);
 tectonicplates.addTo(map);
 earthquakes.addTo(map);
 
+
+const hikerIcon = L.icon({
+  iconUrl: "http://static.arcgis.com/images/Symbols/NPS/npsPictograph_0231b.png",
+  iconSize: [18, 18]
+});
+
+
 // Earth Quake Points
-var earthquakes = L.esri.featureLayer({ url: EarthQuakeURL }).addTo(earthquakes);
+var earthquakes = L.esri.featureLayer({ 
+  url: EarthQuakeURL,
+  pointToLayer: (geojson, latlng) => {
+    return L.marker(latlng, {
+      icon: hikerIcon
+    });
+  }
+}).addTo(earthquakes);
+
 // set pop ups for earth quakes
 earthquakes.bindPopup(function (layer) {
   return L.Util.template("<b>Magnitude: </b>{magnitude} <br><b>Depth: </b>{depth}</br>  <b>Location: </b>{place}", layer.feature.properties);
