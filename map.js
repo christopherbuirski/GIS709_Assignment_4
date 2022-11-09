@@ -51,7 +51,7 @@ tectonicplates.addTo(map);
 earthquakes.addTo(map);
 
 // Earth Quake Points
-var earthquakes = L.esri.featureLayer({
+var earthquakes1 = L.esri.featureLayer({
   url: EarthQuakeURL,
   pointToLayer: function (feature, latlng) {
     var circleMarker = L.circleMarker(latlng, {
@@ -68,7 +68,7 @@ var earthquakes = L.esri.featureLayer({
 ).addTo(earthquakes);
 
 // set pop ups for earth quakes
-earthquakes.bindPopup(function (layer) {
+earthquakes1.bindPopup(function (layer) {
   return L.Util.template("<b>Magnitude: </b>{magnitude} <br><b>Depth: </b>{depth}</br>  <b>Location: </b>{place}", layer.feature.properties);
 });
 
