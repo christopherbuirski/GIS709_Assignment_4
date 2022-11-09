@@ -1,6 +1,9 @@
 // Map Box Token 
 var API_Key = "access_token=pk.eyJ1Ijoibmljb2xlZHN0IiwiYSI6ImNsYTg3ZXg0bjAxMGUzcWwwNGR3ZW14Z2kifQ.3NvYTQplBocf26YEG-unPw"
 
+// Map url
+mapURL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png"
+
 // URL links
 var EarthQuakeURL = "https://services8.arcgis.com/ZhTpwEGNVUBxG9VW/arcgis/rest/services/earth_quake/FeatureServer/0"
 var TectonicPlatesURL = "https://services.arcgis.com/jIL9msH9OI208GCb/arcgis/rest/services/Tectonic_Plates_and_Boundaries/FeatureServer/1"
@@ -8,9 +11,11 @@ var TectonicPlatesBoundaryURL = "https://services.arcgis.com/BG6nSlhZSAWtExvp/ar
 
 // Set basemap and zoom level
 var outdoors_background = L.tileLayer(
-  "https://api.mapbox.com/styles/v1/mapbox/outdoors-v9/tiles/256/{z}/{x}/{y}?" + API_Key, 
+  //"https://api.mapbox.com/styles/v1/mapbox/outdoors-v9/tiles/256/{z}/{x}/{y}?" + API_Key,
+  mapURL,
   { minZoom: 3,
-    attribution: '&copy; Christopher Buirski & Nicole Da Silva Trindade'
+    attributionControl: false,
+    attribution: '&copy; Christopher Buirski & Nicole Da Silva Trindade',
   }
 );
 
@@ -39,28 +44,28 @@ var overlayMaps = {
 };
 
 // control which layers are visible.
-L.control.layers(overlayMaps).addTo(map);
+L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 tectonicplateboundaries.addTo(map);
 tectonicplates.addTo(map);
 earthquakes.addTo(map);
 
-
-const hikerIcon = L.icon({
-  iconUrl: "http://static.arcgis.com/images/Symbols/NPS/npsPictograph_0231b.png",
-  iconSize: [18, 18]
-});
-
-
 // Earth Quake Points
-var earthquakes = L.esri.featureLayer({ 
+var earthquakes = L.esri.featureLayer({
   url: EarthQuakeURL,
-  pointToLayer: (geojson, latlng) => {
-    return L.marker(latlng, {
-      icon: hikerIcon
+  pointToLayer: function (feature, latlng) {
+    var circleMarker = L.circleMarker(latlng, {
+      radius: 7,
+      fillColor: '#404040',
+      color: "#ffffff",
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 1
     });
+    return (circleMarker);
   }
-}).addTo(earthquakes);
+}
+).addTo(earthquakes);
 
 // set pop ups for earth quakes
 earthquakes.bindPopup(function (layer) {
@@ -68,7 +73,7 @@ earthquakes.bindPopup(function (layer) {
 });
 
 // Add tectonic plate boundaries
-L.esri.featureLayer({ 
+var boundry = L.esri.featureLayer({ 
   url: TectonicPlatesBoundaryURL,
   style: function (feature) {
     var c;
@@ -95,45 +100,21 @@ L.esri.featureLayer({
   }
 }).addTo(tectonicplateboundaries);
 
-/*
-// Tectonic Plates
-L.esri.featureLayer({
-  url: TectonicPlatesURL,
-  simplifyFactor: 0.5,
-  precision: 5,
-  style: function (feature) {
-    var c;
-    switch (feature.properties.PlateName) {
-      case 'Africa':
-        c = '#d7191c';
-        w = 5;
-        break;
-      case 'Divergent':
-        c = '#2b83ba';
-        w = 5;
-        break;
-      case 'Transform':
-        c = '#404040';
-        w = 3;
-        break;
-      case 'Unknown':
-        c = '#404040';
-        w = 1;
-        break;
-    }
-    return { color: c, opacity: 1, weight: w };
-  }
-}).addTo(tectonicplates);*/
+// set pop ups for earth quakes
+boundry.bindPopup(function (layer) {
+  return L.Util.template("<b>Magnitude: </b>{magnitude} <br><b>Depth: </b>{depth}</br>  <b>Location: </b>{place}", layer.feature.properties);
+});
+
 
 // Add Tectonic Plates Polygons
-L.esri.featureLayer({
+var plates = L.esri.featureLayer({
   url: TectonicPlatesURL,
   //simplifyFactor: 0.5,
   simplifyFactor: 1,
   precision: 5,
   style: function (feature) {
     if (feature.properties.PlateName === 'Africa') {
-      return { color: 'blue', weight: 0 };
+      return { color: 'blue', weight: 0, opacity: 0 };
     }
     if (feature.properties.PlateName === 'Antarctica') {
       return { color: 'red', weight: 0 };
@@ -285,3 +266,21 @@ L.esri.featureLayer({
     }
   }
 }).addTo(tectonicplates);
+
+
+
+
+var legend = L.control({ position: "bottomright" });
+
+legend.onAdd = function (map) {
+  var div = L.DomUtil.create("div", "legend");
+  div.innerHTML += "<h4>Plate Boundary Types</h4>";
+  div.innerHTML += '<i class="bi bi-circle-fill"  style="background: #477AC2"></i><span>Water</span><br>';
+  div.innerHTML += '<i style="background: #448D40"></i><span>Forest</span><br>';
+  div.innerHTML += '<i style="background: #E6E696"></i><span>Land</span><br>';
+  div.innerHTML += '<i style="background: #E8E6E0"></i><span>Residential</span><br>';
+
+  return div;
+};
+
+legend.addTo(map);
