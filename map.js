@@ -6,7 +6,6 @@ mapURL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}
 
 // URL links
 var EarthQuakeURL = "https://services8.arcgis.com/ZhTpwEGNVUBxG9VW/arcgis/rest/services/earth_quake/FeatureServer/0"
-var TectonicPlatesURL = "https://services.arcgis.com/jIL9msH9OI208GCb/arcgis/rest/services/Tectonic_Plates_and_Boundaries/FeatureServer/1"
 var TectonicPlatesBoundaryURL = "https://services.arcgis.com/BG6nSlhZSAWtExvp/arcgis/rest/services/TectonicPlateBoundaries/FeatureServer/0"
 
 // Set basemap and zoom level
@@ -16,6 +15,7 @@ var outdoors_background = L.tileLayer(
   { minZoom: 3,
     attributionControl: false,
     attribution: '&copy; Christopher Buirski & Nicole Da Silva Trindade',
+    transparent: true,
   }
 );
 
@@ -27,7 +27,6 @@ map.setMaxBounds(map.getBounds());
 outdoors_background.addTo(map);
 
 // layers for two different sets of data, earthquakes and tectonicplates.
-var tectonicplates = new L.LayerGroup();
 var tectonicplateboundaries = new L.LayerGroup();
 var earthquakes = new L.LayerGroup();
 
@@ -38,25 +37,38 @@ var baseMaps = {
 
 // overlays 
 var overlayMaps = {
-  "Tectonic Plates": tectonicplates,
-  "Tectonic Plate Boundaries": tectonicplateboundaries,
-  "Earthquakes": earthquakes
+  "Earthquakes": earthquakes,
+  "Tectonic Plate Boundaries": tectonicplateboundaries
 };
 
 // control which layers are visible.
 L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-tectonicplateboundaries.addTo(map);
-tectonicplates.addTo(map);
 earthquakes.addTo(map);
+tectonicplateboundaries.addTo(map);
+
+function getColor(d) {
+  return d < 1 ? '#291ee1' :
+         d < 2 ? '#0e8af1' :
+         d < 3 ? '#0edcf1' :
+         d < 4 ? '#29d688' :
+         d < 5 ? '#1ae529' :
+         d < 6 ? '#e2db1d' :
+         d < 7 ? '#f0a60f' :
+         d < 8 ? '#d97026':
+         d < 9 ? '#ff2300' :
+         d < 10 ? '#c73845' :
+         '#150607';
+  }
+
 
 // Earth Quake Points
 var earthquakes1 = L.esri.featureLayer({
   url: EarthQuakeURL,
   pointToLayer: function (feature, latlng) {
     var circleMarker = L.circleMarker(latlng, {
-      radius: 7,
-      fillColor: '#404040',
+      radius: 8,
+      fillColor: getColor(feature.properties.magnitude),
       color: "#ffffff",
       weight: 1,
       opacity: 1,
@@ -87,7 +99,7 @@ var boundry = L.esri.featureLayer({
         w = 5;
         break;
       case 'Transform':
-        c = '#404040';
+        c = '#f3900c';
         w = 3;
         break;
       case 'Unknown':
@@ -105,182 +117,52 @@ boundry.bindPopup(function (layer) {
   return L.Util.template("<b>Magnitude: </b>{magnitude} <br><b>Depth: </b>{depth}</br>  <b>Location: </b>{place}", layer.feature.properties);
 });
 
+var legendBounday = L.control({ position: "bottomright" });
 
-// Add Tectonic Plates Polygons
-var plates = L.esri.featureLayer({
-  url: TectonicPlatesURL,
-  //simplifyFactor: 0.5,
-  simplifyFactor: 1,
-  precision: 5,
-  style: function (feature) {
-    if (feature.properties.PlateName === 'Africa') {
-      return { color: 'blue', weight: 0, opacity: 0 };
-    }
-    if (feature.properties.PlateName === 'Antarctica') {
-      return { color: 'red', weight: 0 };
-    } 
-    if (feature.properties.PlateName === 'Somalia') {
-      return { color: 'green', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'India') {
-      return { color: 'orange', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Australia') 
-    { 
-      return { color: 'brown', weight: 0 }; 
-    }
-    if (feature.properties.PlateName === 'Eurasia') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'North America') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'South America') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Nazca') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Pacific') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Arabia') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Sunda') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Timor') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Kermadec') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Tonga') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === "Niuafo'ou") {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Woodlark') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Maoke') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'South Bismarck') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Solomon Sea') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'North Bismarck') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'New Hebrides') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Caribbean') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Cocos') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Okhotsk') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Juan de Fuca') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Altiplano') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'North Andes') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Okinawa') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Philippine Sea') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Amur') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Caroline') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Mariana') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Futuna') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Scotia') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Shetland') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Aegean Sea') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Anatolia') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Yangtze') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Burma') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Rivera') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Birds Head') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Molucca Sea') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Banda Sea') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Manus') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Conway Reef') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Balmoral Reef') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Easter') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Juan Fernandez') {
-      return { color: 'brown', weight: 0 };
-    }
-    if (feature.properties.PlateName === 'Galapagos') {
-      return { color: 'brown', weight: 0 };
-    }
-  }
-}).addTo(tectonicplates);
-
-
-
-
-var legend = L.control({ position: "bottomright" });
-
-legend.onAdd = function (map) {
+legendBounday.onAdd = function (map) {
   var div = L.DomUtil.create("div", "legend");
   div.innerHTML += "<h4>Plate Boundary Types</h4>";
-  div.innerHTML += '<i class="bi bi-circle-fill"  style="background: #477AC2"></i><span>Water</span><br>';
-  div.innerHTML += '<i style="background: #448D40"></i><span>Forest</span><br>';
-  div.innerHTML += '<i style="background: #E6E696"></i><span>Land</span><br>';
-  div.innerHTML += '<i style="background: #E8E6E0"></i><span>Residential</span><br>';
+  div.innerHTML += '<i class="bi bi-circle-fill"  style="background: #d7191c"></i><span>Convergent</span><br>';
+  div.innerHTML += '<i style="background: #2b83ba"></i><span>Divergent</span><br>';
+  div.innerHTML += '<i style="background: #f3900c"></i><span>Transform</span><br>';
+  div.innerHTML += '<i style="background: #404040"></i><span>Unknown</span><br>';
 
   return div;
 };
 
-legend.addTo(map);
+legendBounday.addTo(map);
+
+var legendQuakes = L.control({ position: "bottomleft" });
+
+legendQuakes.onAdd = function (map) {
+  var div = L.DomUtil.create("div", "legend");
+  div.innerHTML += "<h4>Magnitude of Earthquakes</h4>";
+  div.innerHTML += '<i class="bi bi-circle-fill"  style="background: #291ee1"></i><span><1</span><br>';
+  div.innerHTML += '<i style="background: #0e8af1"></i><span><2</span><br>';
+  div.innerHTML += '<i style="background: #0edcf1"></i><span><3</span><br>';
+  div.innerHTML += '<i style="background: #29d688"></i><span><4</span><br>';
+  div.innerHTML += '<i style="background: #1ae529"></i><span><5</span><br>';
+  div.innerHTML += '<i style="background: #e2db1d"></i><span><6</span><br>';
+  div.innerHTML += '<i style="background: #f0a60f"></i><span><7</span><br>';
+  div.innerHTML += '<i style="background: #d97026"></i><span><8</span><br>';
+  div.innerHTML += '<i style="background: #ff2300"></i><span><9</span><br>';
+  div.innerHTML += '<i style="background: #c73845"></i><span><10</span><br>';
+  div.innerHTML += '<i style="background: #150607"></i><span>Unknown</span><br>';
+
+  return div;
+};
+
+legendQuakes.addTo(map);
+
+// Add this one (only) for now, as the Population layer is on by default
+
+map.on('overlayadd', function (eventLayer) {
+    // Switch to the Earthquake legend...
+    if (eventLayer.name === 'Earthquakes') {
+        this.removeControl(legendBounday);
+        legendQuakes.addTo(this);
+    } else { // Or switch to the Techtonic plates boundary legend...
+        this.removeControl(legendQuakes);
+        legendBounday.addTo(this);
+    }
+});
