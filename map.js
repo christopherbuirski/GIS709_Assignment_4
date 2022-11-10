@@ -164,7 +164,7 @@ legendQuakes.addTo(map);
 
 // Add this one (only) for now, as the Population layer is on by default
 
-map.on('overlayadd', function (eventLayer) {
+/*map.on('overlayadd', function (eventLayer) {
     // Switch to the Earthquake legend...
     if (eventLayer.name === 'Earthquakes') {
         this.removeControl(legendBounday);
@@ -173,4 +173,4 @@ map.on('overlayadd', function (eventLayer) {
         this.removeControl(legendQuakes);
         legendBounday.addTo(this);
     }
-});
+});*/
