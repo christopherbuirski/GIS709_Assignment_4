@@ -14,7 +14,7 @@ var outdoors_background = L.tileLayer(
   mapURL,
   { minZoom: 3,
     attributionControl: false,
-    attribution: '&copy; Christopher Buirski & Nicole Da Silva Trindade',
+    attribution: '&copy; 2022 Christopher Buirski & Nicole Da Silva Trindade',
     transparent: true,
   }
 );
@@ -32,7 +32,7 @@ var earthquakes = new L.LayerGroup();
 
 // base layers
 var baseMaps = {
-  Outdoors: outdoors_background
+  Basemap: outdoors_background
 };
 
 // overlays 
@@ -47,7 +47,7 @@ L.control.layers(baseMaps, overlayMaps).addTo(map);
 earthquakes.addTo(map);
 tectonicplateboundaries.addTo(map);
 
-function getColor(d) {
+/*function getColor(d) {
   return d < 1 ? '#291ee1' :
          d < 2 ? '#0e8af1' :
          d < 3 ? '#0edcf1' :
@@ -59,6 +59,17 @@ function getColor(d) {
          d < 9 ? '#ff2300' :
          d < 10 ? '#c73845' :
          '#150607';
+  }*/
+
+function getColor(d) {
+  return d < 2 ? '#ffffd4' :
+         d < 4 ? '#fee391' :
+         d < 5 ? '#fec44f' :
+         d < 6 ? '#fe9929' :
+         d < 7 ? '#ec7014' :
+         d < 8 ? '#cc4c02' :
+         d > 8 ? '#8c2d04' :
+         '#150607';
   }
 
 
@@ -69,8 +80,8 @@ var earthquakes1 = L.esri.featureLayer({
     var circleMarker = L.circleMarker(latlng, {
       radius: 8,
       fillColor: getColor(feature.properties.magnitude),
-      color: "#ffffff",
-      weight: 1,
+      color: "#252525",
+      weight: 2,
       opacity: 1,
       fillOpacity: 1
     });
@@ -81,7 +92,7 @@ var earthquakes1 = L.esri.featureLayer({
 
 // set pop ups for earth quakes
 earthquakes1.bindPopup(function (layer) {
-  return L.Util.template("<b>Magnitude: </b>{magnitude} <br><b>Depth: </b>{depth}</br>  <b>Location: </b>{place}", layer.feature.properties);
+  return L.Util.template("<b>Magnitude: </b>{magnitude} <br><b>Depth: </b>{depth} km</br>  <b>Location: </b>{place}", layer.feature.properties);
 });
 
 // Add tectonic plate boundaries
@@ -92,15 +103,15 @@ var boundry = L.esri.featureLayer({
     switch (feature.properties.Boundary_Type) {
       case 'Convergent':
         c = '#d7191c';
-        w = 5;
+        w = 1;
         break;
       case 'Divergent':
         c = '#2b83ba';
-        w = 5;
+        w = 1;
         break;
       case 'Transform':
         c = '#f3900c';
-        w = 3;
+        w = 1;
         break;
       case 'Unknown':
         c = '#404040';
@@ -114,15 +125,15 @@ var boundry = L.esri.featureLayer({
 
 // set pop ups for earth quakes
 boundry.bindPopup(function (layer) {
-  return L.Util.template("<b>Magnitude: </b>{magnitude} <br><b>Depth: </b>{depth}</br>  <b>Location: </b>{place}", layer.feature.properties);
+  return L.Util.template("<b>Magnitude: </b>{magnitude} <br><b>Depth: </b>{depth} km </br>  <b>Location: </b>{place}", layer.feature.properties);
 });
 
 var legendBounday = L.control({ position: "bottomright" });
 
 legendBounday.onAdd = function (map) {
   var div = L.DomUtil.create("div", "legend");
-  div.innerHTML += "<h4>Plate Boundary Types</h4>";
-  div.innerHTML += '<i class="bi bi-circle-fill"  style="background: #d7191c"></i><span>Convergent</span><br>';
+  div.innerHTML += "<h4>Tectonic Plate Boundary Type</h4>";
+  div.innerHTML += '<i style="background: #d7191c"></i><span>Convergent</span><br>';
   div.innerHTML += '<i style="background: #2b83ba"></i><span>Divergent</span><br>';
   div.innerHTML += '<i style="background: #f3900c"></i><span>Transform</span><br>';
   div.innerHTML += '<i style="background: #404040"></i><span>Unknown</span><br>';
@@ -132,22 +143,19 @@ legendBounday.onAdd = function (map) {
 
 legendBounday.addTo(map);
 
-var legendQuakes = L.control({ position: "bottomleft" });
+var legendQuakes = L.control({ position: "bottomleft"});
 
 legendQuakes.onAdd = function (map) {
   var div = L.DomUtil.create("div", "legend");
-  div.innerHTML += "<h4>Magnitude of Earthquakes</h4>";
-  div.innerHTML += '<i class="bi bi-circle-fill"  style="background: #291ee1"></i><span><1</span><br>';
-  div.innerHTML += '<i style="background: #0e8af1"></i><span><2</span><br>';
-  div.innerHTML += '<i style="background: #0edcf1"></i><span><3</span><br>';
-  div.innerHTML += '<i style="background: #29d688"></i><span><4</span><br>';
-  div.innerHTML += '<i style="background: #1ae529"></i><span><5</span><br>';
-  div.innerHTML += '<i style="background: #e2db1d"></i><span><6</span><br>';
-  div.innerHTML += '<i style="background: #f0a60f"></i><span><7</span><br>';
-  div.innerHTML += '<i style="background: #d97026"></i><span><8</span><br>';
-  div.innerHTML += '<i style="background: #ff2300"></i><span><9</span><br>';
-  div.innerHTML += '<i style="background: #c73845"></i><span><10</span><br>';
-  div.innerHTML += '<i style="background: #150607"></i><span>Unknown</span><br>';
+  div.innerHTML += "<h4>Earthquake Description:</h4>";
+  div.innerHTML += '<i style="background: #ffffd4"></i><span> < 2.0  <b>Micro</b> </span><br>';
+  div.innerHTML += '<i style="background: #fee391"></i><span> 2.0 - 3.9 <b> Minor</b>  </span><br>';
+  div.innerHTML += '<i style="background: #fec44f"></i><span> 4.0 - 4.9 <b>Light</b> </span><br>';
+  div.innerHTML += '<i style="background: #fe9929"></i><span> 5.0 - 5.9 <b>Moderate</b> </span><br>';
+  div.innerHTML += '<i style="background: #ec7014"></i><span> 6.0 - 6.9 <b>Strong</b> </span><br>';
+  div.innerHTML += '<i style="background: #cc4c02"></i><span> 7.0 - 7.9 <b>Major</b> </span><br>';
+  div.innerHTML += '<i style="background: #8c2d04"></i><span> > 8.0 <b>Great</b> </span><br>';
+  //div.innerHTML += '<i style="background: #150607"></i><span>Unknown</span><br>';
 
   return div;
 };
